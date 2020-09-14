@@ -215,6 +215,12 @@ static struct Command commands[] = {
 		"Run Field Firmware Update with <image name> on <device>.\n",
 	  NULL
 	},
+	{ do_PPEU, -1,
+ 		"ppeu read", "<dump ctrl> <device>\n"
+ 		"Usage: mmc ppeu read <-d> <device>\n"
+ 		"-d\tdump data block",
+ 		NULL
+	},
 	{ 0, 0, 0, 0 }
 };
 

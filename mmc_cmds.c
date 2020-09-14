@@ -2657,3 +2657,74 @@ out:
 	return ret;
 #endif
 }
+
+
+ //PPEU - Percentage of P/E cycles Used
+int do_PPEU(int nargs, char **argv)
+{
+ int cmd56_arg = 0x110005FB;
+ char data_in[SD_BLOCK_SIZE];
+ int fd, ret;
+ char *device;
+ if (!((nargs == 2)||(nargs == 3))) {
+	 printf("Usage mmc ppeu read <-d>");
+	 exit(1);
+ }
+ device = argv[nargs-1];
+ fd = open(device, O_RDWR);
+ if (fd < 0) {
+ perror("open");
+ exit(1);
+ }
+ //execute CMD56 and get one 512-byte data block
+ ret = CMD56_data_in(fd, cmd56_arg, data_in);
+ if (ret) {
+ fprintf(stderr, "CMD56 CALL FAILED, %s\n", device);
+ exit(1);
+ }
+ if (!strcmp("-d", argv[1]))
+ dump_data_block(data_in); //data block dumping
+ /* write data to stdout in CSV format */
+ printf("Fixed Filed Header: %02Xh %02Xh %02Xh %02Xh\n",
+ data_in[0], data_in[1], data_in[2], data_in[3]);
+ printf("Percentage Step Size: %d\n", data_in[7]);
+ printf("TLC/QLC Percentage Utilization: %d%%\n", data_in[8]);
+ printf("SLC Percentage Utilization: %d%%\n", data_in[9]);
+
+ return ret;
+}
+
+//CMD56 implementation
+int CMD56_data_in(int fd, int cmd56_arg, char *lba_block_data)
+{
+ int ret = 0;
+ struct mmc_ioc_cmd idata;
+ memset(&idata, 0, sizeof(idata));
+ memset(lba_block_data, 0, sizeof(__u8) * 512);
+ idata.write_flag = 0;
+ idata.opcode = SD_GEN_CMD;
+ idata.arg = cmd56_arg;
+ idata.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_ADTC;
+ idata.blksz = SD_BLOCK_SIZE;
+ idata.blocks = 1;
+ mmc_ioc_cmd_set_data(idata, lba_block_data);
+ ret = ioctl(fd, MMC_IOC_CMD, &idata);
+ if (ret)
+ perror("ioctl");
+ return ret;
+}
+
+void dump_data_block(char *lba_block_data)
+{
+ int count=0;
+ printf("CMD56 data block dumping:");
+ while( count < SD_BLOCK_SIZE) {
+ if(count % 16 == 0)
+ printf("\n%03d: ", count);
+ printf("%02x ", lba_block_data[count]);
+ count++;
+ }
+ printf("\n");
+
+ return;
+}

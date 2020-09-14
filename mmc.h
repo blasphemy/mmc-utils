@@ -197,3 +197,9 @@
 
 #define MMC_RSP_R1	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 #define MMC_RSP_R1B	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE|MMC_RSP_BUSY)
+
+/* Health Status Patches */
+#define SD_GEN_CMD 56 /* adtc, R1 */
+#define SD_BLOCK_SIZE 512 /* data block size for CMD56 */
+#define MMC_RSP_R2 (MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
+#define MMC_CMD_BCR (3 << 5)

@@ -45,3 +45,7 @@ int do_ffu(int nargs, char **argv);
 int do_read_scr(int argc, char **argv);
 int do_read_cid(int argc, char **argv);
 int do_read_csd(int argc, char **argv);
+
+int do_PPEU(int nargs, char **argv); /* Main function */
+int CMD56_data_in(int fd, int cmd56_arg, char *lba_block_data); /* Sub-function */
+void dump_data_block(char *lba_block_data); /* Sub-function */
